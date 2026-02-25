@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import type { MCVerification, MCVerificationInsert } from '../types/mc-check';
+import type { MCVerification, MCVerificationInsert, MCVerificationUpdate } from '../types/mc-check';
 
 /**
  * Fetches all MC verifications from Supabase.
@@ -52,5 +52,23 @@ export function useMcVerifications() {
     [fetchAll]
   );
 
-  return { list, loading, error, refetch: fetchAll, addVerification };
+  const updateVerification = useCallback(
+    async (id: string, updates: MCVerificationUpdate) => {
+      const { error: err } = await supabase.from('mc_verifications').update(updates).eq('id', id);
+      if (err) throw err;
+      await fetchAll();
+    },
+    [fetchAll]
+  );
+
+  const deleteVerification = useCallback(
+    async (id: string) => {
+      const { error: err } = await supabase.from('mc_verifications').delete().eq('id', id);
+      if (err) throw err;
+      await fetchAll();
+    },
+    [fetchAll]
+  );
+
+  return { list, loading, error, refetch: fetchAll, addVerification, updateVerification, deleteVerification };
 }

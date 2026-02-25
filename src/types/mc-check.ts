@@ -25,3 +25,16 @@ export interface MCVerificationInsert {
   notes: string | null;
   date_entered: string; // ISO date YYYY-MM-DD
 }
+
+/**
+ * Payload for updating an existing MC verification (all fields optional except id).
+ */
+export interface MCVerificationUpdate {
+  mc_number?: string;
+  carrier?: string;
+  amount?: number;
+  approved?: boolean;
+  entered_by?: string;
+  notes?: string | null;
+  date_entered?: string;
+}

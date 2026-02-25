@@ -7,7 +7,8 @@ type TabId = 'enter' | 'list';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('enter');
-  const { list, loading, error, refetch, addVerification } = useMcVerifications();
+  const { list, loading, error, refetch, addVerification, updateVerification, deleteVerification } =
+    useMcVerifications();
 
   const tabs: { id: TabId; label: string }[] = [
     { id: 'enter', label: 'Enter MC Verification' },
@@ -15,26 +16,27 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <header className="border-b border-slate-200 bg-white shadow-sm">
-        <div className="mx-auto max-w-5xl px-4 py-4">
-          <h1 className="text-2xl font-bold text-slate-800">MC-Check</h1>
-          <p className="mt-0.5 text-sm text-slate-500">MC verification entries</p>
+    <div className="relative min-h-[100dvh]">
+      <header className="border-b border-[rgba(201,168,76,0.18)] px-3 py-4 sm:px-4 sm:py-5">
+        <div className="mx-auto max-w-5xl">
+          <h1 className="font-serif text-2xl font-normal tracking-tight text-[#d4b85c] sm:text-3xl">
+            MC-Check
+          </h1>
+          <p className="mt-1 font-sans text-sm text-slate-400">MC verification entries</p>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-6">
-        {/* Tabs */}
-        <div className="mb-6 flex gap-1 rounded-lg bg-slate-200/80 p-1">
+      <main className="mx-auto max-w-5xl px-3 py-5 sm:px-4 sm:py-6">
+        <div className="mb-5 flex border border-[rgba(201,168,76,0.18)] bg-navy-row sm:mb-6">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition ${
+              className={`min-h-[44px] flex-1 border-r border-[rgba(201,168,76,0.18)] px-3 py-2.5 font-sans text-sm font-medium transition last:border-r-0 sm:min-h-0 sm:px-4 ${
                 activeTab === tab.id
-                  ? 'bg-white text-slate-800 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-800'
+                  ? 'bg-[rgba(201,168,76,0.12)] text-gold-light'
+                  : 'text-slate-400 hover:bg-navy-row-alt hover:text-slate-300'
               }`}
             >
               {tab.label}
@@ -43,15 +45,21 @@ export default function App() {
         </div>
 
         {activeTab === 'enter' && (
-          <EntryForm onSubmit={addVerification} disabled={loading} />
+          <div className="animate-fade-up" style={{ animationDelay: '120ms' }}>
+            <EntryForm onSubmit={addVerification} disabled={loading} />
+          </div>
         )}
         {activeTab === 'list' && (
-          <VerificationTable
-            list={list}
-            loading={loading}
-            error={error}
-            onRefetch={refetch}
-          />
+          <div className="animate-fade-up" style={{ animationDelay: '120ms' }}>
+            <VerificationTable
+              list={list}
+              loading={loading}
+              error={error}
+              onRefetch={refetch}
+              onUpdate={updateVerification}
+              onDelete={deleteVerification}
+            />
+          </div>
         )}
       </main>
     </div>

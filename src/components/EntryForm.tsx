@@ -13,7 +13,7 @@ function getTodayDateString() {
 
 /**
  * Form for entering a new MC verification.
- * Submits MC#, Carrier, Amount, Approved, User, Notes, Date entered.
+ * Dark luxury theme: navy panel, gold border, gold gradient button.
  */
 export function EntryForm({ onSubmit, disabled }: EntryFormProps) {
   const [mcNumber, setMcNumber] = useState('');
@@ -67,45 +67,45 @@ export function EntryForm({ onSubmit, disabled }: EntryFormProps) {
     }
   };
 
+  const inputClass =
+    'w-full border bg-navy-row px-2.5 py-1.5 font-sans text-sm text-slate-200 placeholder-slate-500 focus:border-gold/50 focus:ring-1 focus:ring-gold/25';
+  const labelClass = 'mb-0.5 block font-mono text-[11px] font-medium uppercase tracking-wider text-slate-500';
+
   return (
     <form
       onSubmit={handleSubmit}
-      className="animate-fade-in rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+      className="border border-[rgba(201,168,76,0.18)] bg-navy-light/60 p-3 sm:p-4"
     >
-      <h2 className="mb-4 text-lg font-semibold text-slate-800">Enter MC Verification</h2>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <h2 className="mb-3 font-serif text-lg font-normal text-gold-light">
+        Enter MC Verification
+      </h2>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 sm:grid-cols-3 lg:grid-cols-6">
         <div>
-          <label htmlFor="mc-number" className="mb-1 block text-sm font-medium text-slate-600">
-            MC#
-          </label>
+          <label htmlFor="mc-number" className={labelClass}>MC#</label>
           <input
             id="mc-number"
             type="text"
             value={mcNumber}
             onChange={(e) => setMcNumber(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="e.g. 123456"
+            className={inputClass}
+            placeholder="123456"
             disabled={disabled}
           />
         </div>
         <div>
-          <label htmlFor="carrier" className="mb-1 block text-sm font-medium text-slate-600">
-            Carrier
-          </label>
+          <label htmlFor="carrier" className={labelClass}>Carrier</label>
           <input
             id="carrier"
             type="text"
             value={carrier}
             onChange={(e) => setCarrier(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Carrier name"
+            className={inputClass}
+            placeholder="Carrier"
             disabled={disabled}
           />
         </div>
         <div>
-          <label htmlFor="amount" className="mb-1 block text-sm font-medium text-slate-600">
-            Amount
-          </label>
+          <label htmlFor="amount" className={labelClass}>Amount</label>
           <input
             id="amount"
             type="number"
@@ -113,82 +113,80 @@ export function EntryForm({ onSubmit, disabled }: EntryFormProps) {
             min="0"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={inputClass}
             placeholder="0.00"
             disabled={disabled}
           />
         </div>
         <div>
-          <label htmlFor="entered-by" className="mb-1 block text-sm font-medium text-slate-600">
-            User (entered by)
-          </label>
+          <label htmlFor="entered-by" className={labelClass}>User</label>
           <input
             id="entered-by"
             type="text"
             value={enteredBy}
             onChange={(e) => setEnteredBy(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Your name"
+            className={inputClass}
+            placeholder="Name"
             disabled={disabled}
           />
         </div>
         <div>
-          <label htmlFor="date-entered" className="mb-1 block text-sm font-medium text-slate-600">
-            Date entered
-          </label>
+          <label htmlFor="date-entered" className={labelClass}>Date</label>
           <input
             id="date-entered"
             type="date"
             value={dateEntered}
             onChange={(e) => setDateEntered(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className={inputClass}
             disabled={disabled}
           />
         </div>
         <div className="flex items-end">
-          <label className="flex cursor-pointer items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-1.5 font-sans text-xs text-slate-400">
             <input
               type="checkbox"
               checked={approved}
               onChange={(e) => setApproved(e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+              className="border-gold-muted bg-navy-row text-gold focus:ring-gold/30"
               disabled={disabled}
             />
-            <span className="text-sm font-medium text-slate-600">Approved</span>
+            Approved
           </label>
         </div>
-        <div className="sm:col-span-2">
-          <label htmlFor="notes" className="mb-1 block text-sm font-medium text-slate-600">
-            Notes
-          </label>
+        <div className="col-span-2 sm:col-span-3 lg:col-span-6">
+          <label htmlFor="notes" className={labelClass}>Notes</label>
           <textarea
             id="notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            rows={3}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            rows={2}
+            className={inputClass + ' min-h-[52px] resize-none'}
             placeholder="Optional notes"
             disabled={disabled}
           />
         </div>
       </div>
-      {message && (
-        <p
-          className={`mt-3 text-sm ${
-            message.type === 'success' ? 'text-green-600' : 'text-red-600'
-          }`}
-        >
-          {message.text}
-        </p>
-      )}
-      <div className="mt-5">
+      <div className="mt-3 flex flex-wrap items-center gap-3">
         <button
           type="submit"
           disabled={disabled || submitting}
-          className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          className="min-h-[40px] shrink-0 border-0 px-4 py-1.5 font-sans text-sm font-medium text-navy transition-opacity hover:opacity-90 disabled:opacity-50"
+          style={{
+            backgroundImage: 'linear-gradient(135deg, #c9a84c 0%, #d4b85c 100%)',
+            color: '#0a1628',
+          }}
         >
           {submitting ? 'Saving…' : 'Save Verification'}
         </button>
+        {message && (
+          <p
+            className={`font-sans text-sm ${
+              message.type === 'success' ? 'status-positive' : 'status-negative'
+            }`}
+          >
+            {message.text}
+          </p>
+        )}
       </div>
     </form>
   );

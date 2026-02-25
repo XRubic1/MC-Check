@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Required for GitHub Pages (project site: https://<user>.github.io/MC-Check/)
-  base: '/MC-Check/',
+  // Relative base so assets load correctly on GitHub Pages (works at any path, e.g. /MC-Check/)
+  base: './',
 });

@@ -9,13 +9,30 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: write  # needed to delete old artifacts so deploy sees only one
 
 concurrency:
   group: 'pages'
   cancel-in-progress: true
 
 jobs:
+  # Remove old github-pages artifacts so deploy finds only this run's artifact
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old github-pages artifacts
+        run: |
+          ARTIFACTS=$(curl -sS -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?per_page=100" \
+            | jq -r '.artifacts[] | select(.name == "github-pages") | .id')
+          for id in $ARTIFACTS; do
+            echo "Deleting artifact ID $id"
+            curl -sS -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$id"
+          done
+
   build:
+    needs: cleanup
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,7 +62,7 @@ jobs:
 
   deploy:
     environment: github-pages
-    needs: build
+    needs: [cleanup, build]
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages

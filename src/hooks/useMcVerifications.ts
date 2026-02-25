@@ -14,16 +14,21 @@ export function useMcVerifications() {
   const fetchAll = useCallback(async () => {
     setLoading(true);
     setError(null);
+    console.debug('[MC-Check] Fetching verifications from database...');
     try {
       const { data, error: err } = await supabase
         .from('mc_verifications')
         .select('*')
         .order('created_at', { ascending: false });
       if (err) throw err;
-      setList((data as MCVerification[]) ?? []);
+      const rows = (data as MCVerification[]) ?? [];
+      setList(rows);
+      console.debug('[MC-Check] Fetched', rows.length, 'verification(s)');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load verifications');
+      const message = e instanceof Error ? e.message : 'Failed to load verifications';
+      setError(message);
       setList([]);
+      console.error('[MC-Check] Database fetch failed:', message, e);
     } finally {
       setLoading(false);
     }

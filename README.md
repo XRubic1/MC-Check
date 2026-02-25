@@ -35,6 +35,14 @@ Open the URL shown (e.g. http://localhost:5173).
 
 The table `mc_verifications` and the SQL to create it (including indexes and optional RLS) are in **`supabase/schema.sql`**. Run that script in the Supabase SQL Editor to set up the database.
 
+## GitHub Pages
+
+The repo includes a workflow (`.github/workflows/deploy-pages.yml`) that builds and deploys the app on every push to `main`.
+
+1. In the repo: **Settings → Pages** → under "Build and deployment", set **Source** to **GitHub Actions**.
+2. Push to `main`; after the workflow runs, the site will be at **https://xrubic1.github.io/MC-Check/** (or your username).
+3. To use Supabase from the deployed site, add **Actions** secrets: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (Settings → Secrets and variables → Actions).
+
 ## Scripts
 
 - `npm run dev` – Start dev server

@@ -1,4 +1,5 @@
-import { useState, FormEvent, useCallback } from 'react';
+import { useState, FormEvent, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { MCVerification, MCVerificationUpdate } from '../types/mc-check';
 
 const BORDER = 'border-[rgba(201,168,76,0.18)]';
@@ -43,6 +44,15 @@ export function EntryDetailModal({ entry, onClose, onUpdate, onDelete }: EntryDe
     }
     setMode('view');
     setMessage(null);
+  }, [entry]);
+
+  useEffect(() => {
+    if (!entry) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [entry]);
 
   if (!entry) return null;
@@ -100,16 +110,16 @@ export function EntryDetailModal({ entry, onClose, onUpdate, onDelete }: EntryDe
     'min-h-[44px] border-0 px-4 py-2 font-sans text-sm font-medium text-navy transition-opacity hover:opacity-90 disabled:opacity-50';
   const outlineButtonClass = `min-h-[44px] border ${BORDER} bg-navy-row px-4 py-2 font-sans text-sm font-medium text-slate-300 hover:bg-navy-row-alt disabled:opacity-50`;
 
-  return (
+  const modal = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/70 p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="entry-modal-title"
       onClick={onClose}
     >
       <div
-        className={`flex max-h-[90vh] w-full max-w-lg flex-col border ${BORDER} bg-navy-light shadow-xl sm:max-h-[85vh]`}
+        className={`my-auto flex max-h-[min(90vh,calc(100dvh-2rem))] w-full max-w-lg flex-col border ${BORDER} bg-navy-light shadow-xl`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className={`flex shrink-0 items-center justify-between border-b ${BORDER} px-4 py-3`}>
@@ -152,7 +162,7 @@ export function EntryDetailModal({ entry, onClose, onUpdate, onDelete }: EntryDe
                   {entry.approved ? (
                     <span className="status-positive font-mono text-xs">Yes</span>
                   ) : (
-                    <span className="status-neutral font-mono text-xs">No</span>
+                    <span className="status-negative font-mono text-xs">No</span>
                   )}
                 </dd>
               </div>
@@ -195,15 +205,20 @@ export function EntryDetailModal({ entry, onClose, onUpdate, onDelete }: EntryDe
                 <label className={LABEL_CLASS}>Date entered</label>
                 <input type="date" value={dateEntered} onChange={(e) => setDateEntered(e.target.value)} className={INPUT_CLASS} />
               </div>
-              <label className="flex cursor-pointer items-center gap-2 font-sans text-sm text-slate-400">
-                <input
-                  type="checkbox"
-                  checked={approved}
-                  onChange={(e) => setApproved(e.target.checked)}
-                  className="border-gold-muted bg-navy-row text-gold focus:ring-gold/30"
-                />
-                Approved
-              </label>
+              <div>
+                <label className={LABEL_CLASS}>Approved</label>
+                <button
+                  type="button"
+                  onClick={() => setApproved((v) => !v)}
+                  className={`w-full border px-3 py-2 font-sans text-sm transition focus:outline-none focus:ring-1 focus:ring-gold/25 ${
+                    approved
+                      ? 'border-green-800/50 bg-green-950/25 text-green-400 hover:border-green-700/50'
+                      : 'border-red-900/40 bg-red-950/20 text-red-400 hover:border-red-800/50'
+                  }`}
+                >
+                  {approved ? 'Yes' : 'No'}
+                </button>
+              </div>
               <div>
                 <label className={LABEL_CLASS}>Notes</label>
                 <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className={INPUT_CLASS} />
@@ -272,4 +287,6 @@ export function EntryDetailModal({ entry, onClose, onUpdate, onDelete }: EntryDe
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }

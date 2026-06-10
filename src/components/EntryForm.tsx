@@ -19,7 +19,7 @@ export function EntryForm({ onSubmit, disabled }: EntryFormProps) {
   const [mcNumber, setMcNumber] = useState('');
   const [carrier, setCarrier] = useState('');
   const [amount, setAmount] = useState('');
-  const [approved, setApproved] = useState(false);
+  const [approved, setApproved] = useState(true);
   const [enteredBy, setEnteredBy] = useState('');
   const [notes, setNotes] = useState('');
   const [dateEntered, setDateEntered] = useState(getTodayDateString);
@@ -52,7 +52,7 @@ export function EntryForm({ onSubmit, disabled }: EntryFormProps) {
       setMcNumber('');
       setCarrier('');
       setAmount('');
-      setApproved(false);
+      setApproved(true);
       setEnteredBy('');
       setNotes('');
       setDateEntered(getTodayDateString());
@@ -141,17 +141,23 @@ export function EntryForm({ onSubmit, disabled }: EntryFormProps) {
             disabled={disabled}
           />
         </div>
-        <div className="flex items-end">
-          <label className="flex cursor-pointer items-center gap-1.5 font-sans text-xs text-slate-400">
-            <input
-              type="checkbox"
-              checked={approved}
-              onChange={(e) => setApproved(e.target.checked)}
-              className="border-gold-muted bg-navy-row text-gold focus:ring-gold/30"
-              disabled={disabled}
-            />
+        <div>
+          <label htmlFor="approved" className={labelClass}>
             Approved
           </label>
+          <button
+            id="approved"
+            type="button"
+            onClick={() => !disabled && setApproved((v) => !v)}
+            disabled={disabled}
+            className={`w-full border px-2.5 py-1.5 font-sans text-sm transition focus:outline-none focus:ring-1 focus:ring-gold/25 disabled:opacity-50 ${
+              approved
+                ? 'border-green-800/50 bg-green-950/25 text-green-400 hover:border-green-700/50'
+                : 'border-red-900/40 bg-red-950/20 text-red-400 hover:border-red-800/50'
+            }`}
+          >
+            {approved ? 'Yes' : 'No'}
+          </button>
         </div>
         <div className="col-span-2 sm:col-span-3 lg:col-span-6">
           <label htmlFor="notes" className={labelClass}>Notes</label>

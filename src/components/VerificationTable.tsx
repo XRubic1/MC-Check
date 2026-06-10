@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { MCVerification, MCVerificationUpdate } from '../types/mc-check';
 import { EntryDetailModal } from './EntryDetailModal';
 
@@ -15,6 +15,7 @@ interface VerificationTableProps {
 }
 
 const BORDER = 'border-[rgba(201,168,76,0.18)]';
+const PAGE_SIZE = 25;
 
 /**
  * Sortable, searchable table of MC verifications.
@@ -31,6 +32,7 @@ export function VerificationTable({
   const [search, setSearch] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('created_at');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [page, setPage] = useState(1);
   const [selectedEntry, setSelectedEntry] = useState<MCVerification | null>(null);
 
   const filtered = useMemo(() => {
@@ -60,6 +62,21 @@ export function VerificationTable({
       return 0;
     });
   }, [filtered, sortKey, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+
+  const paginated = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return sorted.slice(start, start + PAGE_SIZE);
+  }, [sorted, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, sortKey, sortDir]);
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
@@ -140,7 +157,7 @@ export function VerificationTable({
                   </tr>
                 </thead>
                 <tbody>
-                  {sorted.map((row, i) => (
+                  {paginated.map((row, i) => (
                     <tr
                       key={row.id}
                       onClick={() => setSelectedEntry(row)}
@@ -157,7 +174,7 @@ export function VerificationTable({
                         {row.approved ? (
                           <span className="status-positive font-mono text-xs">Yes</span>
                         ) : (
-                          <span className="status-neutral font-mono text-xs">No</span>
+                          <span className="status-negative font-mono text-xs">No</span>
                         )}
                       </td>
                       <td className="px-3 py-2.5 text-slate-400">{row.entered_by}</td>
@@ -169,7 +186,7 @@ export function VerificationTable({
             </div>
 
             <div className="space-y-1 p-3 md:hidden">
-              {sorted.map((row) => (
+              {paginated.map((row) => (
                 <button
                   key={row.id}
                   type="button"
@@ -194,6 +211,38 @@ export function VerificationTable({
                 </button>
               ))}
             </div>
+
+            {sorted.length > PAGE_SIZE && (
+              <div
+                className={`flex flex-col gap-3 border-t ${BORDER} px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-4`}
+              >
+                <p className="font-mono text-xs text-slate-500">
+                  {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, sorted.length)} of{' '}
+                  {sorted.length}
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1}
+                    className="min-h-[40px] border border-[rgba(201,168,76,0.18)] bg-navy-row px-3 py-1.5 font-sans text-sm text-slate-300 hover:bg-navy-row-alt disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Previous
+                  </button>
+                  <span className="font-mono text-xs text-gold-light">
+                    Page {page} / {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page >= totalPages}
+                    className="min-h-[40px] border border-[rgba(201,168,76,0.18)] bg-navy-row px-3 py-1.5 font-sans text-sm text-slate-300 hover:bg-navy-row-alt disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

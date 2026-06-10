@@ -33,7 +33,12 @@ export function VerificationTable({
   const [sortKey, setSortKey] = useState<SortKey>('created_at');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [page, setPage] = useState(1);
-  const [selectedEntry, setSelectedEntry] = useState<MCVerification | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const selectedEntry = useMemo(
+    () => (selectedId ? list.find((row) => row.id === selectedId) ?? null : null),
+    [list, selectedId]
+  );
 
   const filtered = useMemo(() => {
     if (!search.trim()) return list;
@@ -160,7 +165,7 @@ export function VerificationTable({
                   {paginated.map((row, i) => (
                     <tr
                       key={row.id}
-                      onClick={() => setSelectedEntry(row)}
+                      onClick={() => setSelectedId(row.id)}
                       className={`cursor-pointer border-b ${BORDER} transition hover:bg-[rgba(201,168,76,0.06)] ${
                         i % 2 === 0 ? 'bg-navy-row/80' : 'bg-navy-row-alt/80'
                       }`}
@@ -190,7 +195,7 @@ export function VerificationTable({
                 <button
                   key={row.id}
                   type="button"
-                  onClick={() => setSelectedEntry(row)}
+                  onClick={() => setSelectedId(row.id)}
                   className={`w-full border ${BORDER} bg-navy-row p-4 text-left transition hover:bg-navy-row-alt active:bg-[rgba(201,168,76,0.08)]`}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -249,8 +254,9 @@ export function VerificationTable({
 
       {selectedEntry && (
         <EntryDetailModal
+          key={selectedEntry.id}
           entry={selectedEntry}
-          onClose={() => setSelectedEntry(null)}
+          onClose={() => setSelectedId(null)}
           onUpdate={onUpdate}
           onDelete={onDelete}
         />

@@ -11,8 +11,8 @@ export function useMcVerifications() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAll = useCallback(async () => {
-    setLoading(true);
+  const fetchAll = useCallback(async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     setError(null);
     console.debug('[MC-Check] Fetching verifications from database...');
     try {
@@ -47,7 +47,7 @@ export function useMcVerifications() {
     async (row: MCVerificationInsert) => {
       const { error: err } = await supabase.from('mc_verifications').insert(row);
       if (err) throw err;
-      await fetchAll();
+      await fetchAll(false);
     },
     [fetchAll]
   );
@@ -56,7 +56,7 @@ export function useMcVerifications() {
     async (id: string, updates: MCVerificationUpdate) => {
       const { error: err } = await supabase.from('mc_verifications').update(updates).eq('id', id);
       if (err) throw err;
-      await fetchAll();
+      await fetchAll(false);
     },
     [fetchAll]
   );
@@ -65,7 +65,7 @@ export function useMcVerifications() {
     async (id: string) => {
       const { error: err } = await supabase.from('mc_verifications').delete().eq('id', id);
       if (err) throw err;
-      await fetchAll();
+      await fetchAll(false);
     },
     [fetchAll]
   );

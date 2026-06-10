@@ -1,4 +1,4 @@
-import { useState, FormEvent, useCallback, useEffect } from 'react';
+import { useState, FormEvent, useCallback, useEffect, useRef, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import type { MCVerification, MCVerificationUpdate } from '../types/mc-check';
 
@@ -31,6 +31,14 @@ export function EntryDetailModal({ entry, onClose, onUpdate, onDelete }: EntryDe
   const [enteredBy, setEnteredBy] = useState(entry?.entered_by ?? '');
   const [notes, setNotes] = useState(entry?.notes ?? '');
   const [dateEntered, setDateEntered] = useState(entry?.date_entered ?? '');
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const enterEditMode = (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Defer so this click cannot fall through to the Save button that replaces Edit
+    window.setTimeout(() => setMode('edit'), 0);
+  };
 
   const resetForm = useCallback(() => {
     if (entry) {
@@ -54,6 +62,28 @@ export function EntryDetailModal({ entry, onClose, onUpdate, onDelete }: EntryDe
       document.body.style.overflow = prev;
     };
   }, [entry]);
+
+  // Sync form when opening a different entry; keep edit mode if same entry
+  useEffect(() => {
+    if (!entry) return;
+    setMcNumber(entry.mc_number);
+    setCarrier(entry.carrier);
+    setAmount(String(entry.amount));
+    setApproved(entry.approved);
+    setEnteredBy(entry.entered_by);
+    setNotes(entry.notes ?? '');
+    setDateEntered(entry.date_entered);
+    setMode('view');
+    setShowDeleteConfirm(false);
+    setMessage(null);
+  }, [entry?.id]);
+
+  const handleBackdropClick = (e: MouseEvent<HTMLDivElement>) => {
+    // Only close on direct backdrop click, not when editing or confirming delete
+    if (e.target !== e.currentTarget) return;
+    if (mode === 'edit' || showDeleteConfirm) return;
+    onClose();
+  };
 
   if (!entry) return null;
 
@@ -116,11 +146,12 @@ export function EntryDetailModal({ entry, onClose, onUpdate, onDelete }: EntryDe
       role="dialog"
       aria-modal="true"
       aria-labelledby="entry-modal-title"
-      onClick={onClose}
+      onClick={handleBackdropClick}
     >
       <div
         className={`my-auto flex max-h-[min(90vh,calc(100dvh-2rem))] w-full max-w-lg flex-col border ${BORDER} bg-navy-light shadow-xl`}
         onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <div className={`flex shrink-0 items-center justify-between border-b ${BORDER} px-4 py-3`}>
           <h2
@@ -184,7 +215,7 @@ export function EntryDetailModal({ entry, onClose, onUpdate, onDelete }: EntryDe
               </div>
             </dl>
           ) : (
-            <form id="entry-edit-form" onSubmit={handleSaveEdit} className="space-y-4">
+            <form ref={formRef} onSubmit={handleSaveEdit} className="space-y-4">
               <div>
                 <label className={LABEL_CLASS}>MC#</label>
                 <input type="text" value={mcNumber} onChange={(e) => setMcNumber(e.target.value)} className={INPUT_CLASS} />
@@ -250,7 +281,8 @@ export function EntryDetailModal({ entry, onClose, onUpdate, onDelete }: EntryDe
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => setMode('edit')}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={enterEditMode}
                 className={goldButtonClass}
                 style={{ backgroundImage: 'linear-gradient(135deg, #c9a84c 0%, #d4b85c 100%)', color: '#0a1628' }}
               >
@@ -270,9 +302,9 @@ export function EntryDetailModal({ entry, onClose, onUpdate, onDelete }: EntryDe
           ) : (
             <div className="flex flex-wrap gap-2">
               <button
-                type="submit"
-                form="entry-edit-form"
+                type="button"
                 disabled={submitting}
+                onClick={() => formRef.current?.requestSubmit()}
                 className={goldButtonClass}
                 style={{ backgroundImage: 'linear-gradient(135deg, #c9a84c 0%, #d4b85c 100%)', color: '#0a1628' }}
               >

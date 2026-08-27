@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { fetchAllVerifications } from '../lib/fetchAllVerifications';
 import type { MCVerification, MCVerificationInsert, MCVerificationUpdate } from '../types/mc-check';
 
 /**
@@ -16,12 +17,7 @@ export function useMcVerifications() {
     setError(null);
     console.debug('[MC-Check] Fetching verifications from database...');
     try {
-      const { data, error: err } = await supabase
-        .from('mc_verifications')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (err) throw err;
-      const rows = (data as MCVerification[]) ?? [];
+      const rows = await fetchAllVerifications();
       setList(rows);
       console.debug('[MC-Check] Fetched', rows.length, 'verification(s)');
     } catch (e) {
